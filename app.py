@@ -426,19 +426,8 @@ CRITICAL: Make everything feel MODERN and CONTEMPORARY. Avoid dated references o
 
 @app.get("/health")
 async def health_check():
-    try:
-        api_key_set = bool(os.getenv("OPENAI_API_KEY"))
-        return {
-            "status": "healthy", 
-            "timestamp": time.time(),
-            "openai_api_key_configured": api_key_set,
-            "allowed_origins": ALLOWED_ORIGINS
-        }
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        return {"status": "error", "message": str(e)}
+    return {"status": "ok"}
 
-@limiter.limit("10/minute")
 @app.post("/generate-prompt/")
 async def generate_prompt(request: Request, files: List[UploadFile] = File(...)):
     client_ip = request.client.host
@@ -481,7 +470,6 @@ async def generate_prompt(request: Request, files: List[UploadFile] = File(...))
         logger.error(f"Error processing images: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@limiter.limit("10/minute")
 @app.post("/surprise-me/")
 async def surprise_me(request: Request):
     client_ip = request.client.host
