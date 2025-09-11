@@ -426,7 +426,17 @@ CRITICAL: Make everything feel MODERN and CONTEMPORARY. Avoid dated references o
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "timestamp": time.time()}
+    try:
+        api_key_set = bool(os.getenv("OPENAI_API_KEY"))
+        return {
+            "status": "healthy", 
+            "timestamp": time.time(),
+            "openai_api_key_configured": api_key_set,
+            "allowed_origins": ALLOWED_ORIGINS
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return {"status": "error", "message": str(e)}
 
 @limiter.limit("10/minute")
 @app.post("/generate-prompt/")
