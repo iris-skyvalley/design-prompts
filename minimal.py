@@ -47,7 +47,12 @@ def get_openai_client():
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
-        client = openai.OpenAI(api_key=api_key)
+        try:
+            client = openai.OpenAI(api_key=api_key)
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenAI client: {str(e)}")
+            # Try with minimal parameters
+            client = openai.OpenAI(api_key=api_key, timeout=60)
     return client
 
 async def validate_image_content(file_data: bytes, filename: str) -> bool:
@@ -483,8 +488,11 @@ async def surprise_me(request: Request):
         logger.info(f"Surprise prompt generated successfully for {client_ip}")
         return JSONResponse(result)
     except Exception as e:
-        logger.error(f"Error generating surprise prompts for {client_ip}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.error(f"Error generating surprise prompts for {client_ip}: {str(e)}", exc_info=True)
+        return JSONResponse(
+            status_code=500, 
+            content={"error": "Internal server error", "details": str(e)}
+        )
 
 if __name__ == "__main__":
     import uvicorn
