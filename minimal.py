@@ -21,50 +21,131 @@ def health():
 
 @app.post("/surprise-me/")
 def surprise_me():
-    print("Surprise me endpoint called!")
     try:
-        # Minimal OpenAI test
         api_key = os.getenv("OPENAI_API_KEY")
-        print(f"API key exists: {bool(api_key)}")
         if not api_key:
-            print("No API key found!")
             return {"error": "No API key"}
         
-        print("Creating OpenAI client...")
         client = openai.OpenAI(api_key=api_key)
-        print("OpenAI client created successfully")
         
-        print("Making OpenAI API call...")
+        system_prompt = """You are a diverse, creative WEB DESIGN generator. Create varied design concepts from many different aesthetic families. Be creative and draw from a wide range of design inspirations.
+
+Your task:
+1. Generate 3 completely unique aesthetic vibe titles from DIFFERENT style families 
+2. Create 1 detailed design prompt with creative but IMPLEMENTABLE features
+
+STYLE VARIETY - Draw from diverse aesthetics like:
+- Warm earthy tones and natural textures
+- Bright, cheerful, candy-colored palettes  
+- Retro 70s/80s/90s nostalgic vibes
+- Hand-drawn, organic, craft-inspired looks
+- Minimalist Scandinavian clean designs
+- Tropical, beach, vacation aesthetics
+- Vintage paper, bookstore, library feels
+- Playful toy-like, children's book styles
+- Space/cosmic themes (occasionally)
+- Art deco, brutalist, or other architectural styles
+
+IMPORTANT: Vary your aesthetic choices! Don't default to the same style patterns. Mix light and dark, warm and cool, minimal and maximalist approaches.
+
+AVOID impossible features like:
+- Scents, sounds, or physical sensations
+- Real-world physics beyond CSS transforms
+- Features that require hardware not available in browsers
+
+Be varied, colorful, and draw from many different design traditions!"""
+
+        user_prompt = """Create a WEB DESIGN concept from a NON-SPACE aesthetic family. Be creative but avoid cosmic/celestial/galaxy themes.
+
+BANNED WORDS/CONCEPTS (do not use):
+- Celestial, cosmic, galaxy, space, stars, nebula, universe
+- Dreamscape, ethereal, mystical, otherworldly  
+- Dark backgrounds with glowing elements
+- Purple/blue gradient combinations
+
+REQUIRED: Choose from these aesthetic inspirations:
+- Warm embrace of morning light filtering through steam
+- Vibrant coral reef energy with electric blues and living greens
+- Neon rebellion of underground scenes and electric nights
+- Moss-covered wisdom with ancient bark and mushroom softness  
+- Sugar rush dreamscape in pastel candy clouds
+- Gilded age opulence meets geometric precision
+- Nordic clarity where light meets natural wood grain
+- Sun-baked earth meeting rose-tinted horizons
+- Fire season intensity with burnished golds
+- Cabin fever comfort wrapped in evergreen shadows
+- Zen tranquility with blossoms floating on stone
+- Festival explosion of citrus and magenta celebration
+- Mediterranean warmth where olive trees meet golden hour
+- Velvet luxury from forgotten grand ballrooms
+- Atomic age optimism in mustard and teal
+- Urban decay poetry in rust and weathered steel
+- Market day abundance in fresh greens and sunset reds
+- Literary sanctuary wrapped in leather and lamplight
+- Salt air serenity with weathered wood and sea glass
+- Vineyard mystery in deep purples and cork shadows
+- Childhood wonder in strawberry cream dreams
+- Artist's palette chaos in primary boldness
+- Revolution era passion in blood red proclamations
+- Watercolor accident beauty in soft lavender spills
+- Kiln-fired earth in glaze-blue surprises
+
+Format:
+**Style:** [One specific aesthetic from the approved families above - but make it feel MODERN and CONTEMPORARY]
+**Layout:** [One experimental layout approach using modern CSS/JS techniques]  
+**Colors:** [One bold color approach from your chosen aesthetic family with a modern twist]
+**Typography:** [One experimental typography treatment that feels current and fresh]
+**Mood:** [One specific emotional feeling that matches your chosen aesthetic but feels relevant today]
+
+**IMPLEMENTABLE Creative Wildcards:**
+Generate 3 fun wildcards that match your chosen aesthetic family and can be built with modern web technologies.
+
+CRITICAL: Make everything feel MODERN and CONTEMPORARY. Avoid dated references or old-fashioned approaches. Think current design trends with your chosen aesthetic inspiration."""
+
+        import time
+        import random
+        
+        # Add randomization to prevent caching/repetition
+        timestamp = int(time.time())
+        random_seed = random.randint(1000, 9999)
+        
         response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "user", "content": "Generate 3 creative web design prompt titles"}],
-            temperature=0.8,
-            max_tokens=200
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"{user_prompt}\n\nGenerate something completely unique for request #{random_seed} at {timestamp}"},
+            ],
+            temperature=0.9,  # High creativity
+            max_tokens=800
         )
-        print("OpenAI API call completed!")
         
         result = response.choices[0].message.content
-        print(f"Raw OpenAI response: {result}")
         
-        # Parse the result to extract the 3 titles
-        lines = [line.strip() for line in result.split('\n') if line.strip()]
-        prompt_variations = []
-        for line in lines[:3]:  # Take first 3 lines
-            # Remove numbering if present (1. 2. 3.)
-            clean_line = line.lstrip('0123456789. ').strip()
-            if clean_line:
-                prompt_variations.append(clean_line)
+        # Parse similar to the regular prompts
+        import re
+        prompts = []
         
-        print(f"Parsed prompt_variations: {prompt_variations}")
+        # Try to extract vibe titles
+        title_matches = re.findall(r'^\d+\.\s*(.+?)$', result, re.MULTILINE)
+        if title_matches:
+            prompts = [title.strip() for title in title_matches[:3]]
+        else:
+            # Fallback parsing
+            quoted_matches = re.findall(r'["\']([^"\']+)["\']', result)
+            if quoted_matches:
+                prompts = quoted_matches[:3]
+            else:
+                prompts = ['Experimental Wildcard Design', 'Creative Surprise Aesthetic', 'Bold Unconventional Concept']
         
-        # Fallback if we didn't get 3 good titles
-        if len(prompt_variations) < 3:
-            prompt_variations = lines[:3] if len(lines) >= 3 else ["Creative Design", "Modern Aesthetic", "Bold Concept"]
-        
-        return {
-            "prompt_variations": prompt_variations, 
-            "json_variation": {"landing_page_prompt": result}
+        # Create JSON output
+        json_obj = {
+            "landing_page_prompt": result,
+            "vibe_titles": prompts,
+            "style": "Surprise me - creative experimental design",
+            "usage": "Use this creative prompt to build something completely unexpected and unique"
         }
+        
+        return {"prompt_variations": prompts, "json_variation": json_obj}
     except Exception as e:
         return {"error": str(e), "type": str(type(e))}
 
