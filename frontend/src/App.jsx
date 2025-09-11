@@ -74,7 +74,7 @@ function App() {
     const formData = new FormData();
     images.forEach((img) => formData.append('files', img));
     try {
-      const res = await fetch('/generate-prompt/', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/generate-prompt/`, {
         method: 'POST',
         body: formData,
       });
@@ -97,7 +97,7 @@ function App() {
     setJsonPrompt(null);
     setError('');
     try {
-      const res = await fetch('/surprise-me/', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/surprise-me/`, {
         method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to generate surprise prompt');
