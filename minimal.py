@@ -38,8 +38,21 @@ def surprise_me():
         
         result = response.choices[0].message.content
         
+        # Parse the result to extract the 3 titles
+        lines = [line.strip() for line in result.split('\n') if line.strip()]
+        prompt_variations = []
+        for line in lines[:3]:  # Take first 3 lines
+            # Remove numbering if present (1. 2. 3.)
+            clean_line = line.lstrip('0123456789. ').strip()
+            if clean_line:
+                prompt_variations.append(clean_line)
+        
+        # Fallback if we didn't get 3 good titles
+        if len(prompt_variations) < 3:
+            prompt_variations = lines[:3] if len(lines) >= 3 else ["Creative Design", "Modern Aesthetic", "Bold Concept"]
+        
         return {
-            "prompt_variations": ["Test 1", "Test 2", "Test 3"], 
+            "prompt_variations": prompt_variations, 
             "json_variation": {"landing_page_prompt": result}
         }
     except Exception as e:
