@@ -21,20 +21,27 @@ def health():
 
 @app.post("/surprise-me/")
 def surprise_me():
+    print("Surprise me endpoint called!")
     try:
         # Minimal OpenAI test
         api_key = os.getenv("OPENAI_API_KEY")
+        print(f"API key exists: {bool(api_key)}")
         if not api_key:
+            print("No API key found!")
             return {"error": "No API key"}
         
+        print("Creating OpenAI client...")
         client = openai.OpenAI(api_key=api_key)
+        print("OpenAI client created successfully")
         
+        print("Making OpenAI API call...")
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": "Generate 3 creative web design prompt titles"}],
             temperature=0.8,
             max_tokens=200
         )
+        print("OpenAI API call completed!")
         
         result = response.choices[0].message.content
         print(f"Raw OpenAI response: {result}")
