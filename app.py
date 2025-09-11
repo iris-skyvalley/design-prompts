@@ -425,13 +425,16 @@ CRITICAL: Make everything feel MODERN and CONTEMPORARY. Avoid dated references o
     return {"prompt_variations": prompts, "json_variation": json_obj}
 
 @app.get("/health")
-async def health_check():
+def health_check():
     return {"status": "ok"}
 
+@app.get("/test")
+def test_endpoint():
+    return {"message": "test works"}
+
 @app.post("/generate-prompt/")
-async def generate_prompt(request: Request, files: List[UploadFile] = File(...)):
-    client_ip = request.client.host
-    logger.info(f"Generate prompt request from {client_ip} with {len(files)} files")
+def generate_prompt(files: List[UploadFile] = File(...)):
+    return {"message": "endpoint reached", "file_count": len(files)}
     
     if not (1 <= len(files) <= MAX_IMAGES):
         logger.warning(f"Invalid file count from {client_ip}: {len(files)} files")
@@ -471,9 +474,8 @@ async def generate_prompt(request: Request, files: List[UploadFile] = File(...))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/surprise-me/")
-async def surprise_me(request: Request):
-    client_ip = request.client.host
-    logger.info(f"Surprise me request from {client_ip}")
+def surprise_me():
+    return {"message": "surprise endpoint reached"}
     
     try:
         # Generate random creative design prompts without image analysis
