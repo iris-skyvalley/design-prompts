@@ -37,6 +37,7 @@ def surprise_me():
         )
         
         result = response.choices[0].message.content
+        print(f"Raw OpenAI response: {result}")
         
         # Parse the result to extract the 3 titles
         lines = [line.strip() for line in result.split('\n') if line.strip()]
@@ -46,6 +47,8 @@ def surprise_me():
             clean_line = line.lstrip('0123456789. ').strip()
             if clean_line:
                 prompt_variations.append(clean_line)
+        
+        print(f"Parsed prompt_variations: {prompt_variations}")
         
         # Fallback if we didn't get 3 good titles
         if len(prompt_variations) < 3:
