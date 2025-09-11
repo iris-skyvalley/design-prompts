@@ -435,56 +435,10 @@ def test_endpoint():
 @app.post("/generate-prompt/")
 def generate_prompt(files: List[UploadFile] = File(...)):
     return {"message": "endpoint reached", "file_count": len(files)}
-    
-    if not (1 <= len(files) <= MAX_IMAGES):
-        logger.warning(f"Invalid file count from {client_ip}: {len(files)} files")
-        raise HTTPException(status_code=400, detail="Upload 1-5 images.")
-    
-    image_data_list = []
-    for file in files:
-        if file.content_type not in SUPPORTED_FORMATS:
-            logger.warning(f"Unsupported file type from {client_ip}: {file.content_type}")
-            raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}")
-        
-        contents = await file.read()
-        if len(contents) > MAX_SIZE_MB * 1024 * 1024:
-            logger.warning(f"File too large from {client_ip}: {len(contents)} bytes")
-            raise HTTPException(status_code=400, detail=f"File {file.filename} exceeds 10MB size limit.")
-        
-        # Validate actual image content
-        if not await validate_image_content(contents, file.filename):
-            logger.warning(f"Invalid image content from {client_ip}: {file.filename}")
-            raise HTTPException(status_code=400, detail=f"File {file.filename} is not a valid image.")
-            
-        image_data_list.append(contents)
-    
-    try:
-        # Analyze images using Vision API
-        print(f"Analyzing {len(image_data_list)} images...")
-        features = await analyze_design_images(image_data_list)
-        print(f"Analysis result: {features.get('analysis', 'No analysis found')[:200]}...")
-        
-        # Generate design prompts based on analysis
-        result = await generate_design_prompts(features)
-        return JSONResponse(result)
-    except HTTPException:
-        raise  # Re-raise HTTP exceptions
-    except Exception as e:
-        logger.error(f"Error processing images: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/surprise-me/")
 def surprise_me():
     return {"message": "surprise endpoint reached"}
-    
-    try:
-        # Generate random creative design prompts without image analysis
-        result = await generate_surprise_prompts()
-        logger.info(f"Surprise prompt generated successfully for {client_ip}")
-        return JSONResponse(result)
-    except Exception as e:
-        logger.error(f"Error generating surprise prompts for {client_ip}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
 
 if __name__ == "__main__":
     import uvicorn
