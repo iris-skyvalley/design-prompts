@@ -219,27 +219,15 @@ Format (DESCRIBE what you see, don't change it):
 **Mood:** [Describe the EXACT mood from the screenshot analysis]
 
 **Enhancement Wildcards:**
-Choose 1 wildcard from each category that enhances this specific aesthetic:
+Create 3 unique wildcards (1 from each category) that enhance this specific aesthetic:
 
-**Animation/Interaction:** Choose 1:
-- "Elements melt and reform like liquid when hovered"
-- "Background color shifts with mouse movement like a mood ring"
-- "Typography grows organically like vines when scrolled"
-- "Elements follow cursor with magnetic attraction"
+**Animation/Interaction:** [Create 1 creative animation or interaction effect that matches this aesthetic and can be built with CSS/JS]
 
-**Visual Effect:** Choose 1:
-- "Elements cast realistic shadows that move with parallax"
-- "Background has subtle breathing animation like it's alive"
-- "Add vintage film grain that moves across the page"
-- "Text appears handwritten in real-time with CSS animation"
+**Visual Effect:** [Create 1 visual effect or styling detail that enhances this aesthetic and is technically feasible]  
 
-**Layout:** Choose 1:
-- "Content flows along spiral or curved paths"
-- "Components stack like scattered polaroid photos"
-- "Elements arrange in constellation-like patterns"
-- "Layout breaks apart into floating newspaper columns"
+**Layout:** [Create 1 interesting layout approach that complements this aesthetic while being implementable]
 
-Select wildcards that enhance YOUR SPECIFIC aesthetic while being memorable."""
+Make each wildcard specific to this aesthetic and genuinely creative - avoid generic effects."""
 
     response = get_openai_client().chat.completions.create(
         model="gpt-4o",
