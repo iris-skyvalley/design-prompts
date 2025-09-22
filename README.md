@@ -8,6 +8,7 @@ A web application that analyzes design screenshots and generates creative design
 - 🎲 **Surprise Me**: Generate creative design prompts from diverse aesthetic families
 - 🔒 **Secure**: Rate limiting, file validation, and proper error handling
 - ⚡ **Fast**: Real-time prompt generation with OpenAI Vision API
+- **Wildcards** Add creative wildcards to add unique elements to each design
 
 ## Architecture
 
